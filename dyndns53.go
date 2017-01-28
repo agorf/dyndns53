@@ -64,12 +64,8 @@ func main() {
 	}
 
 	domain := strings.TrimSuffix(recordSetName, ".")
-	if ips, err := net.LookupIP(domain); err == nil {
-		for _, ip := range ips {
-			if ip.String() == currentIP {
-				log.Fatalf("%s already resolves to %s; nothing to do", domain, currentIP)
-			}
-		}
+	if domainResolvesToIP(domain, currentIP) {
+		log.Fatalf("%s already resolves to %s; nothing to do", domain, currentIP)
 	}
 
 	usr, err := user.Current()
@@ -124,4 +120,15 @@ func getCurrentIP() (string, error) {
 	httpResp.Body.Close()
 	ip := strings.TrimSuffix(string(body), "\n")
 	return ip, nil
+}
+
+func domainResolvesToIP(domain, checkIP string) bool {
+	if ips, err := net.LookupIP(domain); err == nil {
+		for _, ip := range ips {
+			if ip.String() == checkIP {
+				return true
+			}
+		}
+	}
+	return false
 }
