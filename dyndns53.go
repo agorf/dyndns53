@@ -58,13 +58,10 @@ func main() {
 		log.Fatal("missing hosted zone id")
 	}
 
-	httpResp, err := http.Get("http://checkip.amazonaws.com/")
+	currentIP, err := getCurrentIP()
 	if err != nil {
 		log.Fatal(err)
 	}
-	body, err := ioutil.ReadAll(httpResp.Body)
-	httpResp.Body.Close()
-	currentIP := strings.TrimSuffix(string(body), "\n")
 
 	domain := strings.TrimSuffix(recordSetName, ".")
 	if ips, err := net.LookupIP(domain); err == nil {
@@ -116,4 +113,15 @@ func main() {
 	}
 
 	fmt.Println(resp)
+}
+
+func getCurrentIP() (string, error) {
+	httpResp, err := http.Get("http://checkip.amazonaws.com/")
+	if err != nil {
+		return "", err
+	}
+	body, err := ioutil.ReadAll(httpResp.Body)
+	httpResp.Body.Close()
+	ip := strings.TrimSuffix(string(body), "\n")
+	return ip, nil
 }
