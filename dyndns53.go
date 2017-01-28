@@ -33,21 +33,14 @@ func main() {
 	log.SetFlags(0)
 
 	var err error
-	var recSet recordSet
 
-	flag.StringVar(&recSet.Name, "name", "", `record set name; must end with "."`)
-	flag.StringVar(&recSet.Type, "type", "A", `record set type; "A" or "AAAA"`)
-	flag.Int64Var(&recSet.TTL, "ttl", 300, "TTL (time to live) in seconds")
-	flag.StringVar(&recSet.HostedZoneId, "zone", "", "hosted zone id")
-
+	recSet := createRecordSetFromFlags()
 	if len(os.Args) == 1 {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	flag.Parse()
-
-	if err := validateRecordSet(&recSet); err != nil {
+	if err := validateRecordSet(recSet); err != nil {
 		log.Fatal(err)
 	}
 
@@ -61,7 +54,7 @@ func main() {
 		log.Fatalf("%s already resolves to %s; nothing to do", domain, recSet.Value)
 	}
 
-	resp, err := upsertRecordSet(&recSet)
+	resp, err := upsertRecordSet(recSet)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -134,6 +127,18 @@ func upsertRecordSet(recSet *recordSet) (*route53.ChangeResourceRecordSetsOutput
 	}
 
 	return resp, nil
+}
+
+func createRecordSetFromFlags() *recordSet {
+	var recSet recordSet
+
+	flag.StringVar(&recSet.Name, "name", "", `record set name; must end with "."`)
+	flag.StringVar(&recSet.Type, "type", "A", `record set type; "A" or "AAAA"`)
+	flag.Int64Var(&recSet.TTL, "ttl", 300, "TTL (time to live) in seconds")
+	flag.StringVar(&recSet.HostedZoneId, "zone", "", "hosted zone id")
+	flag.Parse()
+
+	return &recSet
 }
 
 func validateRecordSet(recSet *recordSet) error {
