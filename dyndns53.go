@@ -47,23 +47,8 @@ func main() {
 
 	flag.Parse()
 
-	if recSet.Name == "" {
-		log.Fatal("missing record set name")
-	}
-	if !strings.HasSuffix(recSet.Name, ".") {
-		log.Fatal(`record set name must end with a "."`)
-	}
-	if recSet.Type == "" {
-		log.Fatal("missing record set type")
-	}
-	if recSet.Type != "A" && recSet.Type != "AAAA" {
-		log.Fatalf("invalid record set type: %s", recSet.Type)
-	}
-	if recSet.TTL < 1 {
-		log.Fatalf("invalid record set TTL: %d", recSet.TTL)
-	}
-	if recSet.HostedZoneId == "" {
-		log.Fatal("missing hosted zone id")
+	if err := validateRecordSet(&recSet); err != nil {
+		log.Fatal(err)
 	}
 
 	recSet.Value, err = getCurrentIP()
@@ -147,4 +132,32 @@ func upsertRecordSet(recSet *recordSet) (*route53.ChangeResourceRecordSetsOutput
 	}
 
 	return resp, nil
+}
+
+func validateRecordSet(recSet *recordSet) error {
+	if recSet.Name == "" {
+		return fmt.Errorf("missing record set name")
+	}
+
+	if !strings.HasSuffix(recSet.Name, ".") {
+		return fmt.Errorf(`record set name must end with a "."`)
+	}
+
+	if recSet.Type == "" {
+		return fmt.Errorf("missing record set type")
+	}
+
+	if recSet.Type != "A" && recSet.Type != "AAAA" {
+		return fmt.Errorf("invalid record set type: %s", recSet.Type)
+	}
+
+	if recSet.TTL < 1 {
+		return fmt.Errorf("invalid record set TTL: %d", recSet.TTL)
+	}
+
+	if recSet.HostedZoneId == "" {
+		return fmt.Errorf("missing hosted zone id")
+	}
+
+	return nil
 }
