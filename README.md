@@ -9,7 +9,7 @@ domain of your choice with the public IP address of the machine it runs on.
 
 ## Installation
 
-[Install Go][], if you haven't, and issue:
+[Install Go][] and issue:
 
     $ go get github.com/agorf/dyndns53
 
@@ -17,9 +17,61 @@ domain of your choice with the public IP address of the machine it runs on.
 
 ## Configuration
 
-Necessary options are passed from the command-line when running the program. The
-only thing you need to set up in terms of configuration is an [AWS
-credentials][] file to access the [Route 53 API][]:
+Log in to the [AWS management console][] and follow the steps below. You need to
+do this _once_.
+
+[AWS management console]: https://console.aws.amazon.com/
+
+### Step 1: Create a hosted zone
+
+Go to the [Route 53 Hosted Zones page][] and click _Create Hosted Zone_.
+
+Fill in your domain name in _Domain Name_ and choose _Public Hosted Zone_ for
+_Type_, then click _Create_.
+
+In the hosted zone page, click _Back to Hosted Zones_ and note down the _Hosted
+Zone ID_ since you will need it in the next step.
+
+[Route 53 Hosted Zones page]: https://console.aws.amazon.com/route53/home#hosted-zones:
+
+### Step 2: Create an IAM policy
+
+Go to to the [IAM Policies page][] and click _Create Policy_.
+
+Click _Select_ on the _Policy Generator_ section.
+
+In the following form, choose _Allow_ for _Effect_, _Amazon Route 53_ for _AWS
+Service_, _ChangeResourceRecordSets_ for _Actions_, fill in
+`arn:aws:route53:::hostedzone/<HOSTEDZONEID>` for _Amazon Resource Name (ARN)_
+(replacing `<HOSTEDZONEID>` with the hosted zone id from the previous step) and
+click _Add Statement_ and then _Next Step_.
+
+Fill in a name for _Policy Name_ so that you can look up the policy later and
+click _Create Policy_.
+
+[IAM Policies page]: https://console.aws.amazon.com/iam/home#/policies
+
+### Step 3: Create an IAM user
+
+Go to the [IAM Users page][] and click the _Add user_ button.
+
+Fill in the user name, check _Programmatic access_ for _Access type_ and click
+_Next: Permissions_.
+
+On the permissions page, click the last option _Attach existing policies
+directly_ and fill in the _Search_ field with the name of the policy you created
+in the previous step. Click on the policy to check it and click _Next: Review_.
+
+Click _Create user_ and you will be presented with an _Access key ID_ and a
+_Secret access key_, the credentials dyndns53 needs to access the service
+programmatically. Don't close the window since you will need them in the next
+step.
+
+[IAM Users page]: https://console.aws.amazon.com/iam/home#/users
+
+### Step 4: Create an AWS credentials file
+
+In the machine you plan to run dyndns53, issue:
 
     $ mkdir -p ~/.aws
     $ touch ~/.aws/credentials
@@ -29,18 +81,16 @@ Edit the file with your editor:
 
     $ vim ~/.aws/credentials
 
-The file should contain:
+And write:
 
     [dyndns53]
     aws_access_key_id = <ACCESS_KEY_ID>
     aws_secret_access_key = <SECRET_ACCESS_KEY>
 
-Where `<ACCESS_KEY_ID>` and `<SECRET_ACCESS_KEY>` are the actual values from the
-[AWS IAM service][IAM].
+Replacing `<ACCESS_KEY_ID>` and `<SECRET_ACCESS_KEY>` with the actual values you
+were presented in the previous step.
 
-[AWS credentials]: https://aws.amazon.com/blogs/security/a-new-and-standardized-way-to-manage-credentials-in-the-aws-sdks/
-[Route 53 API]: http://docs.aws.amazon.com/Route53/latest/APIReference/API_ChangeResourceRecordSets.html
-[IAM]: http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey
+You are now ready to use dyndns53.
 
 ## Usage
 
