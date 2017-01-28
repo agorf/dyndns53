@@ -1,6 +1,6 @@
-# dyndns
+# dyndns53
 
-dyndns can be used to set up your own [dynamic DNS][] service. It does that by
+dyndns53 can be used to set up your own [dynamic DNS][] service. It does that by
 accessing the [Amazon Route 53][Route 53 API] ([DNS][]) service, updating a
 domain of your choice with the public IP address of the machine it runs on.
 
@@ -11,7 +11,7 @@ domain of your choice with the public IP address of the machine it runs on.
 
 [Install Go][], if you haven't, and issue:
 
-    $ go get github.com/agorf/dyndns
+    $ go get github.com/agorf/dyndns53
 
 [Install Go]: https://golang.org/doc/install
 
@@ -31,7 +31,7 @@ Edit the file with your editor:
 
 The file should contain:
 
-    [dyndns]
+    [dyndns53]
     aws_access_key_id = <ACCESS_KEY_ID>
     aws_secret_access_key = <SECRET_ACCESS_KEY>
 
@@ -46,8 +46,8 @@ Where `<ACCESS_KEY_ID>` and `<SECRET_ACCESS_KEY>` are the actual values from the
 
 Running the program with no arguments prints a usage text:
 
-    $ dyndns
-    Usage of dyndns:
+    $ dyndns53
+    Usage of dyndns53:
       -name string
             record set name; must end with "."
       -ttl int
@@ -60,7 +60,7 @@ Running the program with no arguments prints a usage text:
 You can set [Cron][] (with `crontab -e`) to run the program e.g. every five
 minutes:
 
-    */5 * * * * dyndns -name mydomain.com. -zone HOSTEDZONEID
+    */5 * * * * dyndns53 -name mydomain.com. -zone HOSTEDZONEID
 
 Where `mydomain.com.` is the name of the record set you want to update (note
 that it must end with a `.`) and `HOSTEDZONEID` is the id of the [hosted zone][]
@@ -73,7 +73,7 @@ the record set belongs to.
 
 Licensed under the MIT license (see [LICENSE.txt][]).
 
-[LICENSE.txt]: https://github.com/agorf/dyndns/blob/master/LICENSE.txt
+[LICENSE.txt]: https://github.com/agorf/dyndns53/blob/master/LICENSE.txt
 
 ## Author
 

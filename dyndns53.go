@@ -18,7 +18,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 )
 
-const progName = "dyndns"
+const progName = "dyndns53"
 
 func main() {
 	log.SetPrefix(progName + ": ")
