@@ -67,13 +67,11 @@ func main() {
 	currentIP := strings.TrimSuffix(string(body), "\n")
 
 	domain := strings.TrimSuffix(recordSetName, ".")
-	ips, err := net.LookupIP(domain)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, ip := range ips {
-		if ip.String() == currentIP {
-			log.Fatalf("%s already resolves to %s; nothing to do", domain, currentIP)
+	if ips, err := net.LookupIP(domain); err == nil {
+		for _, ip := range ips {
+			if ip.String() == currentIP {
+				log.Fatalf("%s already resolves to %s; nothing to do", domain, currentIP)
+			}
 		}
 	}
 
