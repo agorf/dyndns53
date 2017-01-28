@@ -116,6 +116,9 @@ Where `mydomain.com.` is the name of the record set you want to update (note
 that it must end with a `.`) and `HOSTEDZONEID` is the id of the [hosted zone][]
 the record set belongs to.
 
+If the record set does not exist, it will be created the first time dyndns53
+runs.
+
 [Cron]: https://en.wikipedia.org/wiki/Cron
 [hosted zone]: http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ListInfoOnHostedZone.html
 
