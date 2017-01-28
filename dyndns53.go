@@ -81,11 +81,13 @@ func getCurrentIP() (string, error) {
 }
 
 func domainResolvesToIP(domain, checkIP string) bool {
-	if ips, err := net.LookupIP(domain); err == nil {
-		for _, ip := range ips {
-			if ip.String() == checkIP {
-				return true
-			}
+	ips, err := net.LookupIP(domain)
+	if err != nil {
+		return false
+	}
+	for _, ip := range ips {
+		if ip.String() == checkIP {
+			return true
 		}
 	}
 	return false
