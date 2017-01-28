@@ -79,8 +79,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	homeDir := usr.HomeDir
-	credentials := credentials.NewSharedCredentials(path.Join(homeDir, ".aws", "credentials"), progName)
+	credentialsPath := path.Join(usr.HomeDir, ".aws", "credentials")
+	credentials := credentials.NewSharedCredentials(credentialsPath, progName)
 
 	sess, err := session.NewSession()
 	if err != nil {
