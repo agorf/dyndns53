@@ -99,7 +99,6 @@ func main() {
 					},
 				},
 			},
-			Comment: aws.String(progName),
 		},
 		HostedZoneId: aws.String(hostedZoneId),
 	}
