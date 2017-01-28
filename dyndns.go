@@ -42,7 +42,7 @@ func main() {
 	if recordSetName == "" {
 		log.Fatal("missing record set name")
 	}
-	if recordSetName[len(recordSetName)-1:] != "." {
+	if !strings.HasSuffix(recordSetName, ".") {
 		log.Fatal(`record set name must end with a "."`)
 	}
 	if recordSetType == "" {
