@@ -1,8 +1,8 @@
 # dyndns53
 
-dyndns53 can be used to set up your own [dynamic DNS][] service with [Amazon
-Route 53][] by updating a domain of your choice with the public IP address of
-the machine it runs on.
+dyndns53 can be used to run your own [dynamic DNS][] service with [Amazon Route
+53][] by updating a domain of your choice with the public IP address of the
+machine it runs on.
 
 [dynamic DNS]: https://en.wikipedia.org/wiki/Dynamic_DNS
 [Amazon Route 53]: https://aws.amazon.com/route53/
