@@ -63,12 +63,12 @@ func main() {
 }
 
 func getCurrentIP() (string, error) {
-	httpResp, err := http.Get("http://checkip.amazonaws.com/")
+	resp, err := http.Get("http://checkip.amazonaws.com/")
 	if err != nil {
 		return "", err
 	}
-	body, err := ioutil.ReadAll(httpResp.Body)
-	httpResp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
 	ip := strings.TrimSuffix(string(body), "\n")
 	return ip, nil
 }
