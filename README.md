@@ -98,6 +98,8 @@ Running the program with no arguments prints a usage text:
 
     $ dyndns53
     Usage of dyndns53:
+      -log string
+            file name to log to (default is stdout)
       -name string
             record set name; must end with "."
       -ttl int

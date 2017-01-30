@@ -32,18 +32,35 @@ func main() {
 	log.SetPrefix(progName + ": ")
 	log.SetFlags(0)
 
-	var err error
-
-	recSet := createRecordSetFromFlags()
+	var recSet recordSet
+	var logFn string
+	flag.StringVar(&recSet.Name, "name", "", `record set name; must end with "."`)
+	flag.StringVar(&recSet.Type, "type", "A", `record set type; "A" or "AAAA"`)
+	flag.Int64Var(&recSet.TTL, "ttl", 300, "TTL (time to live) in seconds")
+	flag.StringVar(&recSet.HostedZoneId, "zone", "", "hosted zone id")
+	flag.StringVar(&logFn, "log", "", "file name to log to (default is stdout)")
 	if len(os.Args) == 1 {
 		flag.Usage()
 		os.Exit(1)
 	}
+	flag.Parse()
 
-	if err := validateRecordSet(recSet); err != nil {
+	if logFn != "" {
+		f, err := os.OpenFile(logFn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+
+		log.SetFlags(log.LstdFlags) // restore standard flags
+		log.SetOutput(f)            // log to file
+	}
+
+	if err := validateRecordSet(&recSet); err != nil {
 		log.Fatal(err)
 	}
 
+	var err error
 	recSet.Value, err = getCurrentIP()
 	if err != nil {
 		log.Fatal(err)
@@ -54,12 +71,12 @@ func main() {
 		log.Fatalf("%s already resolves to %s; nothing to do", domain, recSet.Value)
 	}
 
-	resp, err := upsertRecordSet(recSet)
+	resp, err := upsertRecordSet(&recSet)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(resp)
+	log.Println(resp)
 }
 
 func getCurrentIP() (string, error) {
@@ -127,18 +144,6 @@ func upsertRecordSet(recSet *recordSet) (*route53.ChangeResourceRecordSetsOutput
 	}
 
 	return resp, nil
-}
-
-func createRecordSetFromFlags() *recordSet {
-	var recSet recordSet
-
-	flag.StringVar(&recSet.Name, "name", "", `record set name; must end with "."`)
-	flag.StringVar(&recSet.Type, "type", "A", `record set type; "A" or "AAAA"`)
-	flag.Int64Var(&recSet.TTL, "ttl", 300, "TTL (time to live) in seconds")
-	flag.StringVar(&recSet.HostedZoneId, "zone", "", "hosted zone id")
-	flag.Parse()
-
-	return &recSet
 }
 
 func validateRecordSet(recSet *recordSet) error {
