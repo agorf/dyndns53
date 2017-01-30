@@ -17,8 +17,9 @@ machine it runs on.
 
 ## Configuration
 
-Log in to the [AWS management console][] and follow the steps below. You need to
-do this _once_.
+First, register a domain name if you haven't already.
+
+Log in to the [AWS management console][] and follow the steps below.
 
 [AWS management console]: https://console.aws.amazon.com/
 
@@ -29,8 +30,15 @@ Go to the [Route 53 Hosted Zones page][] and click _Create Hosted Zone_.
 Fill in your domain name in _Domain Name_ and choose _Public Hosted Zone_ for
 _Type_, then click _Create_.
 
-In the hosted zone page, click _Back to Hosted Zones_ and note down the _Hosted
-Zone ID_ since you will need it in the next step.
+In the hosted zone page, note down the domain names of the Amazon name servers
+(row with type NS). You need to set them as name servers in your domain name
+registrar.
+
+**Note:** DNS propagation usually takes a few hours for newly-registered
+domain names. If resolving your domain doesn't work, try again later.
+
+Click _Back to Hosted Zones_ and note down the _Hosted Zone ID_ since you will
+need it in the next step.
 
 [Route 53 Hosted Zones page]: https://console.aws.amazon.com/route53/home#hosted-zones:
 
