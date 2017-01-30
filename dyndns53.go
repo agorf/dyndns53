@@ -84,8 +84,8 @@ func getCurrentIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
 	ip := strings.TrimSuffix(string(body), "\n")
 	return ip, nil
 }
