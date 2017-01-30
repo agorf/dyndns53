@@ -89,7 +89,7 @@ func getCurrentIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	ip := strings.TrimSuffix(string(body), "\n")
+	ip := strings.TrimSpace(string(body))
 	return ip, nil
 }
 
