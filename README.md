@@ -101,7 +101,7 @@ Running the program with no arguments prints a usage text:
       -log string
             file name to log to (default is stdout)
       -name string
-            record set name; must end with "."
+            record set name (domain)
       -ttl int
             TTL (time to live) in seconds (default 300)
       -type string
@@ -112,11 +112,10 @@ Running the program with no arguments prints a usage text:
 You can set [Cron][] (with `crontab -e`) to run the program e.g. every five
 minutes:
 
-    */5 * * * * dyndns53 -name mydomain.com. -zone HOSTEDZONEID -log ~/dyndns53.log
+    */5 * * * * dyndns53 -name mydomain.com -zone HOSTEDZONEID -log ~/dyndns53.log
 
-Where `mydomain.com.` is the name of the record set you want to update (note
-that it must end with a `.`) and `HOSTEDZONEID` is the id of the [hosted zone][]
-the record set belongs to.
+Where `mydomain.com` is the name of the record set you want to update and
+`HOSTEDZONEID` is the id of the [hosted zone][] the record set belongs to.
 
 If the record set does not exist, it will be created the first time dyndns53
 runs.

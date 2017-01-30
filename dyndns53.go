@@ -34,7 +34,7 @@ func main() {
 
 	var recSet recordSet
 	var logFn string
-	flag.StringVar(&recSet.Name, "name", "", `record set name; must end with "."`)
+	flag.StringVar(&recSet.Name, "name", "", "record set name (domain)")
 	flag.StringVar(&recSet.Type, "type", "A", `record set type; "A" or "AAAA"`)
 	flag.Int64Var(&recSet.TTL, "ttl", 300, "TTL (time to live) in seconds")
 	flag.StringVar(&recSet.HostedZoneId, "zone", "", "hosted zone id")
@@ -56,6 +56,7 @@ func main() {
 		log.SetOutput(f)            // log to file
 	}
 
+	recSet.Name = strings.TrimSuffix(recSet.Name, ".") + "." // append . if missing
 	if err := validateRecordSet(&recSet); err != nil {
 		log.Fatal(err)
 	}
