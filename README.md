@@ -112,7 +112,7 @@ Running the program with no arguments prints a usage text:
 You can set [Cron][] (with `crontab -e`) to run the program e.g. every five
 minutes:
 
-    */5 * * * * dyndns53 -name mydomain.com. -zone HOSTEDZONEID
+    */5 * * * * dyndns53 -name mydomain.com. -zone HOSTEDZONEID -log ~/dyndns53.log
 
 Where `mydomain.com.` is the name of the record set you want to update (note
 that it must end with a `.`) and `HOSTEDZONEID` is the id of the [hosted zone][]
