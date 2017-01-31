@@ -120,19 +120,19 @@ Running the program with no arguments prints a usage text:
 You can set [Cron][] (with `crontab -e`) to run the program e.g. every five
 minutes:
 
-    */5 * * * * dyndns53 -name mydomain.com -zone HOSTEDZONEID -log ~/dyndns53.log
+    */5 * * * * dyndns53 -name mydomain -zone HOSTEDZONEID -log ~/dyndns53.log
 
-Where `mydomain.com` is the name of the record set you want to update and
-`HOSTEDZONEID` is the id of the [hosted zone][] the record set belongs to.
-
-Assuming that the IP address changes right after dyndns53 runs (with a default
-TTL of 5 minutes), the above [Cron][] entry has a worst-case scenario of a
-10-minute delay until the domain name is in sync with the IP address (5 minutes
-until next run that will issue the update + 5 minutes for the DNS change to
-propagate) and a maximum of 2 requests to AWS.
+Where `mydomain` is the name of the record set (domain) you want to update and
+`HOSTEDZONEID` is the id of the [hosted zone][] it belongs to.
 
 If the record set does not exist, it will be created the first time dyndns53
 runs.
+
+Assuming that the IP address changes right after dyndns53 runs (with a default
+TTL of 5 minutes), the above [Cron][] entry has a worst-case scenario of a
+10-minute delay until the domain name resolves to the new IP address (5 minutes
+until next run that issues the update + 5 minutes for the DNS change to
+propagate) and a maximum of 2 requests to AWS.
 
 [Cron]: https://en.wikipedia.org/wiki/Cron
 [hosted zone]: http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ListInfoOnHostedZone.html
