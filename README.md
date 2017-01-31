@@ -125,6 +125,12 @@ minutes:
 Where `mydomain.com` is the name of the record set you want to update and
 `HOSTEDZONEID` is the id of the [hosted zone][] the record set belongs to.
 
+Assuming that the IP address changes right after dyndns53 runs (with a default
+TTL of 5 minutes), the above [Cron][] entry has a worst-case scenario of a
+10-minute delay until the domain name is in sync with the IP address (5 minutes
+until next run that will issue the update + 5 minutes for the DNS change to
+propagate) and a maximum of 2 requests to AWS.
+
 If the record set does not exist, it will be created the first time dyndns53
 runs.
 
