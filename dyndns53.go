@@ -19,11 +19,11 @@ import (
 )
 
 type recordSet struct {
-	Name         string
-	Value        string // ip
-	Type         string
-	TTL          int64
-	HostedZoneId string
+	name         string
+	value        string // ip
+	rsType       string
+	ttl          int64
+	hostedZoneId string
 }
 
 const progName = "dyndns53"
@@ -34,10 +34,10 @@ func main() {
 
 	var recSet recordSet
 	var logFn string
-	flag.StringVar(&recSet.Name, "name", "", "record set name (domain)")
-	flag.StringVar(&recSet.Type, "type", "A", `record set type; "A" or "AAAA"`)
-	flag.Int64Var(&recSet.TTL, "ttl", 300, "TTL (time to live) in seconds")
-	flag.StringVar(&recSet.HostedZoneId, "zone", "", "hosted zone id")
+	flag.StringVar(&recSet.name, "name", "", "record set name (domain)")
+	flag.StringVar(&recSet.rsType, "type", "A", `record set type; "A" or "AAAA"`)
+	flag.Int64Var(&recSet.ttl, "ttl", 300, "TTL (time to live) in seconds")
+	flag.StringVar(&recSet.hostedZoneId, "zone", "", "hosted zone id")
 	flag.StringVar(&logFn, "log", "", "file name to log to (default is stdout)")
 	if len(os.Args) == 1 {
 		flag.Usage()
@@ -45,7 +45,7 @@ func main() {
 	}
 	flag.Parse()
 
-	recSet.Name = strings.TrimSuffix(recSet.Name, ".") + "." // append . if missing
+	recSet.name = strings.TrimSuffix(recSet.name, ".") + "." // append . if missing
 	if err := recSet.validate(); err != nil {
 		log.Fatal(err)
 	}
@@ -62,14 +62,14 @@ func main() {
 	}
 
 	var err error
-	recSet.Value, err = getCurrentIP()
+	recSet.value, err = getCurrentIP()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	domain := strings.TrimSuffix(recSet.Name, ".")
-	if domainResolvesToIP(domain, recSet.Value) {
-		log.Fatalf("%s already resolves to %s; nothing to do", domain, recSet.Value)
+	domain := strings.TrimSuffix(recSet.name, ".")
+	if domainResolvesToIP(domain, recSet.value) {
+		log.Fatalf("%s already resolves to %s; nothing to do", domain, recSet.value)
 	}
 
 	resp, err := recSet.upsert()
@@ -128,19 +128,19 @@ func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 				{
 					Action: aws.String("UPSERT"),
 					ResourceRecordSet: &route53.ResourceRecordSet{
-						Name: aws.String(rs.Name),
-						Type: aws.String(rs.Type),
-						TTL:  aws.Int64(rs.TTL),
+						Name: aws.String(rs.name),
+						Type: aws.String(rs.rsType),
+						TTL:  aws.Int64(rs.ttl),
 						ResourceRecords: []*route53.ResourceRecord{
 							{
-								Value: aws.String(rs.Value),
+								Value: aws.String(rs.value),
 							},
 						},
 					},
 				},
 			},
 		},
-		HostedZoneId: aws.String(rs.HostedZoneId),
+		HostedZoneId: aws.String(rs.hostedZoneId),
 	}
 	resp, err := svc.ChangeResourceRecordSets(params)
 	if err != nil {
@@ -151,27 +151,27 @@ func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 }
 
 func (rs *recordSet) validate() error {
-	if rs.Name == "" {
+	if rs.name == "" {
 		return fmt.Errorf("missing record set name")
 	}
 
-	if !strings.HasSuffix(rs.Name, ".") {
+	if !strings.HasSuffix(rs.name, ".") {
 		return fmt.Errorf(`record set name must end with a "."`)
 	}
 
-	if rs.Type == "" {
+	if rs.rsType == "" {
 		return fmt.Errorf("missing record set type")
 	}
 
-	if rs.Type != "A" && rs.Type != "AAAA" {
-		return fmt.Errorf("invalid record set type: %s", rs.Type)
+	if rs.rsType != "A" && rs.rsType != "AAAA" {
+		return fmt.Errorf("invalid record set type: %s", rs.rsType)
 	}
 
-	if rs.TTL < 1 {
-		return fmt.Errorf("invalid record set TTL: %d", rs.TTL)
+	if rs.ttl < 1 {
+		return fmt.Errorf("invalid record set TTL: %d", rs.ttl)
 	}
 
-	if rs.HostedZoneId == "" {
+	if rs.hostedZoneId == "" {
 		return fmt.Errorf("missing hosted zone id")
 	}
 
