@@ -53,7 +53,7 @@ func main() {
 	if logFn != "" {
 		f, err := os.OpenFile(logFn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("log file: %v", err)
 		}
 		defer f.Close()
 
@@ -83,12 +83,12 @@ func main() {
 func getCurrentIP() (string, error) {
 	resp, err := http.Get("http://checkip.amazonaws.com/")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("getCurrentIP: %v", err)
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("getCurrentIP: %v", err)
 	}
 	ip := strings.TrimSpace(string(body))
 	return ip, nil
@@ -110,14 +110,14 @@ func domainResolvesToIP(domain, checkIP string) bool {
 func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 	usr, err := user.Current()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("(*recordSet).upsert: %v", err)
 	}
 	credentialsPath := path.Join(usr.HomeDir, ".aws", "credentials")
 	credentials := credentials.NewSharedCredentials(credentialsPath, progName)
 
 	sess, err := session.NewSession()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("(*recordSet).upsert: %v", err)
 	}
 
 	svc := route53.New(sess, &aws.Config{Credentials: credentials})
@@ -144,7 +144,7 @@ func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 	}
 	resp, err := svc.ChangeResourceRecordSets(params)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("(*recordSet).upsert: %v", err)
 	}
 
 	return resp, nil
