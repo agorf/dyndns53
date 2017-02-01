@@ -57,7 +57,7 @@ func main() {
 	}
 
 	recSet.Name = strings.TrimSuffix(recSet.Name, ".") + "." // append . if missing
-	if err := validateRecordSet(&recSet); err != nil {
+	if err := recSet.validate(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -72,7 +72,7 @@ func main() {
 		log.Fatalf("%s already resolves to %s; nothing to do", domain, recSet.Value)
 	}
 
-	resp, err := upsertRecordSet(&recSet)
+	resp, err := recSet.upsert()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -107,7 +107,7 @@ func domainResolvesToIP(domain, checkIP string) bool {
 	return false
 }
 
-func upsertRecordSet(recSet *recordSet) (*route53.ChangeResourceRecordSetsOutput, error) {
+func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 	usr, err := user.Current()
 	if err != nil {
 		return nil, err
@@ -128,19 +128,19 @@ func upsertRecordSet(recSet *recordSet) (*route53.ChangeResourceRecordSetsOutput
 				{
 					Action: aws.String("UPSERT"),
 					ResourceRecordSet: &route53.ResourceRecordSet{
-						Name: aws.String(recSet.Name),
-						Type: aws.String(recSet.Type),
-						TTL:  aws.Int64(recSet.TTL),
+						Name: aws.String(rs.Name),
+						Type: aws.String(rs.Type),
+						TTL:  aws.Int64(rs.TTL),
 						ResourceRecords: []*route53.ResourceRecord{
 							{
-								Value: aws.String(recSet.Value),
+								Value: aws.String(rs.Value),
 							},
 						},
 					},
 				},
 			},
 		},
-		HostedZoneId: aws.String(recSet.HostedZoneId),
+		HostedZoneId: aws.String(rs.HostedZoneId),
 	}
 	resp, err := svc.ChangeResourceRecordSets(params)
 	if err != nil {
@@ -150,28 +150,28 @@ func upsertRecordSet(recSet *recordSet) (*route53.ChangeResourceRecordSetsOutput
 	return resp, nil
 }
 
-func validateRecordSet(recSet *recordSet) error {
-	if recSet.Name == "" {
+func (rs *recordSet) validate() error {
+	if rs.Name == "" {
 		return fmt.Errorf("missing record set name")
 	}
 
-	if !strings.HasSuffix(recSet.Name, ".") {
+	if !strings.HasSuffix(rs.Name, ".") {
 		return fmt.Errorf(`record set name must end with a "."`)
 	}
 
-	if recSet.Type == "" {
+	if rs.Type == "" {
 		return fmt.Errorf("missing record set type")
 	}
 
-	if recSet.Type != "A" && recSet.Type != "AAAA" {
-		return fmt.Errorf("invalid record set type: %s", recSet.Type)
+	if rs.Type != "A" && rs.Type != "AAAA" {
+		return fmt.Errorf("invalid record set type: %s", rs.Type)
 	}
 
-	if recSet.TTL < 1 {
-		return fmt.Errorf("invalid record set TTL: %d", recSet.TTL)
+	if rs.TTL < 1 {
+		return fmt.Errorf("invalid record set TTL: %d", rs.TTL)
 	}
 
-	if recSet.HostedZoneId == "" {
+	if rs.HostedZoneId == "" {
 		return fmt.Errorf("missing hosted zone id")
 	}
 
