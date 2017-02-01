@@ -45,6 +45,11 @@ func main() {
 	}
 	flag.Parse()
 
+	recSet.Name = strings.TrimSuffix(recSet.Name, ".") + "." // append . if missing
+	if err := recSet.validate(); err != nil {
+		log.Fatal(err)
+	}
+
 	if logFn != "" {
 		f, err := os.OpenFile(logFn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
@@ -54,11 +59,6 @@ func main() {
 
 		log.SetFlags(log.LstdFlags) // restore standard flags
 		log.SetOutput(f)            // log to file
-	}
-
-	recSet.Name = strings.TrimSuffix(recSet.Name, ".") + "." // append . if missing
-	if err := recSet.validate(); err != nil {
-		log.Fatal(err)
 	}
 
 	var err error
