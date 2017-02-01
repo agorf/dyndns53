@@ -62,7 +62,7 @@ func main() {
 	}
 
 	var err error
-	recSet.value, err = getCurrentIP()
+	recSet.value, err = currentIPAddress()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -81,15 +81,15 @@ func main() {
 	log.Println("upsert request sent")
 }
 
-func getCurrentIP() (string, error) {
+func currentIPAddress() (string, error) {
 	resp, err := http.Get("http://checkip.amazonaws.com/")
 	if err != nil {
-		return "", fmt.Errorf("getCurrentIP: %v", err)
+		return "", fmt.Errorf("currentIPAddress: %v", err)
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("getCurrentIP: %v", err)
+		return "", fmt.Errorf("currentIPAddress: %v", err)
 	}
 	ip := strings.TrimSpace(string(body))
 	return ip, nil
