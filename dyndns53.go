@@ -121,7 +121,6 @@ func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 	}
 
 	svc := route53.New(sess, &aws.Config{Credentials: credentials})
-
 	params := &route53.ChangeResourceRecordSetsInput{
 		ChangeBatch: &route53.ChangeBatch{
 			Changes: []*route53.Change{
@@ -146,7 +145,6 @@ func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 	if err != nil {
 		return nil, fmt.Errorf("(*recordSet).upsert: %v", err)
 	}
-
 	return resp, nil
 }
 
@@ -154,26 +152,20 @@ func (rs *recordSet) validate() error {
 	if rs.name == "" {
 		return fmt.Errorf("missing record set name")
 	}
-
 	if !strings.HasSuffix(rs.name, ".") {
 		return fmt.Errorf(`record set name must end with a "."`)
 	}
-
 	if rs.rsType == "" {
 		return fmt.Errorf("missing record set type")
 	}
-
 	if rs.rsType != "A" && rs.rsType != "AAAA" {
 		return fmt.Errorf("invalid record set type: %s", rs.rsType)
 	}
-
 	if rs.ttl < 1 {
 		return fmt.Errorf("invalid record set TTL: %d", rs.ttl)
 	}
-
 	if rs.hostedZoneId == "" {
 		return fmt.Errorf("missing hosted zone id")
 	}
-
 	return nil
 }
