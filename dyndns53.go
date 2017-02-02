@@ -23,7 +23,7 @@ type recordSet struct {
 	value        string // ip
 	rsType       string
 	ttl          int64
-	hostedZoneId string
+	hostedZoneID string
 }
 
 const progName = "dyndns53"
@@ -37,7 +37,7 @@ func main() {
 	flag.StringVar(&recSet.name, "name", "", "record set name (domain)")
 	flag.StringVar(&recSet.rsType, "type", "A", `record set type; "A" or "AAAA"`)
 	flag.Int64Var(&recSet.ttl, "ttl", 300, "TTL (time to live) in seconds")
-	flag.StringVar(&recSet.hostedZoneId, "zone", "", "hosted zone id")
+	flag.StringVar(&recSet.hostedZoneID, "zone", "", "hosted zone id")
 	flag.StringVar(&logFn, "log", "", "file name to log to (default is stdout)")
 	if len(os.Args) == 1 {
 		flag.Usage()
@@ -140,7 +140,7 @@ func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 				},
 			},
 		},
-		HostedZoneId: aws.String(rs.hostedZoneId),
+		HostedZoneId: aws.String(rs.hostedZoneID),
 	}
 	resp, err := svc.ChangeResourceRecordSets(params)
 	if err != nil {
@@ -165,7 +165,7 @@ func (rs *recordSet) validate() error {
 	if rs.ttl < 1 {
 		return fmt.Errorf("invalid record set TTL: %d", rs.ttl)
 	}
-	if rs.hostedZoneId == "" {
+	if rs.hostedZoneID == "" {
 		return fmt.Errorf("missing hosted zone id")
 	}
 	return nil
