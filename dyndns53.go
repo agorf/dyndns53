@@ -66,11 +66,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("current IP address is", recSet.value)
 
 	domain := strings.TrimSuffix(recSet.name, ".")
 	if domainResolvesToIP(domain, recSet.value) {
-		log.Println("nothing to do")
+		log.Printf("current IP address is %s; nothing to do", recSet.value)
 		os.Exit(0)
 	}
 
@@ -78,7 +77,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("upsert request sent")
+	log.Printf("current IP address is %s; upsert request sent", recSet.value)
 }
 
 func currentIPAddress() (string, error) {
