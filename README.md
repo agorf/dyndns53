@@ -131,7 +131,7 @@ Assuming that the IP address changes right after dyndns53 runs (with a default
 TTL of 5 minutes), the above [Cron][] entry has a worst-case scenario of a
 10-minute delay until the domain name resolves to the new IP address (5 minutes
 until next run that issues the update + 5 minutes for the DNS change to
-propagate) and a maximum of 2 requests to AWS.
+propagate).
 
 [Cron]: https://en.wikipedia.org/wiki/Cron
 [hosted zone]: http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/ListInfoOnHostedZone.html

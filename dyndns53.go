@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/user"
@@ -26,7 +25,10 @@ type recordSet struct {
 	hostedZoneID string
 }
 
-const progName = "dyndns53"
+const (
+	progName   = "dyndns53"
+	ipFileName = "." + progName + "-ip"
+)
 
 func main() {
 	log.SetPrefix(progName + ": ")
@@ -61,23 +63,26 @@ func main() {
 		log.SetOutput(f)            // log to file
 	}
 
-	var err error
-	recSet.value, err = currentIPAddress()
+	ip, err := currentIPAddress()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	domain := strings.TrimSuffix(recSet.name, ".")
-	if domainResolvesToIP(domain, recSet.value) {
-		log.Printf("current IP address is %s; nothing to do", recSet.value)
+	if ip == lastIPAddress() {
+		log.Printf("current IP address is %s; nothing to do", ip)
 		os.Exit(0)
 	}
 
+	recSet.value = ip
 	_, err = recSet.upsert()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("current IP address is %s; upsert request sent", recSet.value)
+	log.Printf("current IP address is %s; upsert request sent", ip)
+
+	if err := updateLastIPAddress(ip); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func currentIPAddress() (string, error) {
@@ -94,17 +99,19 @@ func currentIPAddress() (string, error) {
 	return ip, nil
 }
 
-func domainResolvesToIP(domain, checkIP string) bool {
-	ips, err := net.LookupIP(domain)
+func lastIPAddress() string {
+	data, err := ioutil.ReadFile(ipFileName)
 	if err != nil {
-		return false
+		return ""
 	}
-	for _, ip := range ips {
-		if ip.String() == checkIP {
-			return true
-		}
+	return string(data)
+}
+
+func updateLastIPAddress(ip string) error {
+	if err := ioutil.WriteFile(ipFileName, []byte(ip), 0611); err != nil {
+		return fmt.Errorf("updateLastIPAddress: %v", err)
 	}
-	return false
+	return nil
 }
 
 func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
