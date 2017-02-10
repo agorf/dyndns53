@@ -108,7 +108,7 @@ func lastIPAddress() string {
 }
 
 func updateLastIPAddress(ip string) error {
-	if err := ioutil.WriteFile(ipFileName, []byte(ip), 0611); err != nil {
+	if err := ioutil.WriteFile(ipFileName, []byte(ip), 0644); err != nil {
 		return fmt.Errorf("updateLastIPAddress: %v", err)
 	}
 	return nil
