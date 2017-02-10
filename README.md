@@ -86,7 +86,7 @@ In the machine you plan to run dyndns53, issue:
 
 Edit the file with your editor:
 
-    $ vim ~/.aws/credentials
+    $ $EDITOR ~/.aws/credentials
 
 And write:
 
