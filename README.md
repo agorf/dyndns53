@@ -16,9 +16,8 @@ a domain of your choice with the public IP address of the machine it runs on.
 
 ## Configuration
 
-First, register a domain name if you haven't already.
-
-Log in to the [AWS management console][] and follow the steps below.
+Register a domain name, if you haven't already. Then log in to the [AWS
+management console][] and follow the steps below.
 
 [AWS management console]: https://console.aws.amazon.com/
 
@@ -30,7 +29,7 @@ Fill in your domain name in _Domain Name_ and choose _Public Hosted Zone_ for
 _Type_, then click _Create_.
 
 In the hosted zone page, note down the domain names of the Amazon name servers
-(row with type NS). You need to set them as name servers in your domain name
+(row with type _NS_). You need to set them as name servers in your domain name
 registrar.
 
 **Note:** DNS propagation usually takes a few hours for newly-registered
@@ -50,8 +49,8 @@ Click _Select_ on the _Policy Generator_ section.
 In the following form, choose _Allow_ for _Effect_, _Amazon Route 53_ for _AWS
 Service_, _ChangeResourceRecordSets_ for _Actions_, fill in
 `arn:aws:route53:::hostedzone/<HOSTEDZONEID>` for _Amazon Resource Name (ARN)_
-(replacing `<HOSTEDZONEID>` with the hosted zone id from the previous step) and
-click _Add Statement_ and then _Next Step_.
+(replacing `<HOSTEDZONEID>` with the one from the previous step) and click _Add
+Statement_ and then _Next Step_.
 
 Fill in a name for _Policy Name_ so that you can look up the policy later and
 click _Create Policy_.
@@ -70,9 +69,9 @@ directly_ and fill in the _Search_ field with the name of the policy you created
 in the previous step. Click on the policy to check it and click _Next: Review_.
 
 Click _Create user_ and you will be presented with an _Access key ID_ and a
-_Secret access key_, the credentials dyndns53 needs to access the service
-programmatically. Don't close the window since you will need them in the next
-step.
+_Secret access key_ (masked), the credentials dyndns53 needs to access the
+service programmatically. Don't close the window since you will need them in the
+next step.
 
 [IAM Users page]: https://console.aws.amazon.com/iam/home#/users
 
@@ -119,10 +118,11 @@ Running the program with no arguments prints a usage text:
 You can set [Cron][] (with `crontab -e`) to run the program e.g. every five
 minutes:
 
-    */5 * * * * dyndns53 -name mydomain -zone HOSTEDZONEID -log ~/dyndns53.log
+    */5 * * * * ~/go/bin/dyndns53 -name mydomain -zone HOSTEDZONEID -log ~/dyndns53.log
 
-Where `mydomain` is the name of the record set (domain) you want to update and
-`HOSTEDZONEID` is the id of the [hosted zone][] it belongs to.
+Where `~/go` is your `$GOPATH`, `mydomain` is the name of the record set
+(domain) you want to update and `HOSTEDZONEID` is the id of the [hosted zone][]
+it belongs to.
 
 If the record set does not exist, it will be created the first time dyndns53
 runs.
