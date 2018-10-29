@@ -17,26 +17,43 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 )
 
-type recordSet struct {
-	name         string
-	value        string // ip
-	rsType       string
-	ttl          int64
-	hostedZoneID string
-}
+type (
+	recordSet struct {
+		names        []string
+		value        string // ip
+		rsType       string
+		ttl          int64
+		hostedZoneID string
+	}
+
+	arrayFlags []string
+)
 
 const (
 	progName   = "dyndns53"
 	ipFileName = "." + progName + "-ip"
 )
 
+func (i *arrayFlags) String() string {
+	return strings.Join([]string(*i), " ")
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 func main() {
 	log.SetPrefix(progName + ": ")
 	log.SetFlags(0)
 
-	var recSet recordSet
-	var logFn string
-	flag.StringVar(&recSet.name, "name", "", "record set name (domain)")
+	var (
+		recSet recordSet
+		logFn  string
+		names  arrayFlags
+	)
+
+	flag.Var(&names, "name", "record set names (-name domain1 -name domain2 -name domain3 ...)")
 	flag.StringVar(&recSet.rsType, "type", "A", `record set type; "A" or "AAAA"`)
 	flag.Int64Var(&recSet.ttl, "ttl", 300, "TTL (time to live) in seconds")
 	flag.StringVar(&recSet.hostedZoneID, "zone", "", "hosted zone id")
@@ -47,7 +64,10 @@ func main() {
 	}
 	flag.Parse()
 
-	recSet.name = strings.TrimSuffix(recSet.name, ".") + "." // append . if missing
+	recSet.names = make([]string, len(names))
+	for i, name := range names {
+		recSet.names[i] = strings.TrimSuffix(name, ".") + "." // append . if missing
+	}
 	if err := recSet.validate(); err != nil {
 		log.Fatal(err)
 	}
@@ -128,23 +148,25 @@ func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 	}
 
 	svc := route53.New(sess, &aws.Config{Credentials: credentials})
-	params := &route53.ChangeResourceRecordSetsInput{
-		ChangeBatch: &route53.ChangeBatch{
-			Changes: []*route53.Change{
-				{
-					Action: aws.String("UPSERT"),
-					ResourceRecordSet: &route53.ResourceRecordSet{
-						Name: aws.String(rs.name),
-						Type: aws.String(rs.rsType),
-						TTL:  aws.Int64(rs.ttl),
-						ResourceRecords: []*route53.ResourceRecord{
-							{
-								Value: aws.String(rs.value),
-							},
-						},
+	changes := make([]*route53.Change, len(rs.names))
+	for i, name := range rs.names {
+		changes[i] = &route53.Change{
+			Action: aws.String("UPSERT"),
+			ResourceRecordSet: &route53.ResourceRecordSet{
+				Name: aws.String(name),
+				Type: aws.String(rs.rsType),
+				TTL:  aws.Int64(rs.ttl),
+				ResourceRecords: []*route53.ResourceRecord{
+					{
+						Value: aws.String(rs.value),
 					},
 				},
 			},
+		}
+	}
+	params := &route53.ChangeResourceRecordSetsInput{
+		ChangeBatch: &route53.ChangeBatch{
+			Changes: changes,
 		},
 		HostedZoneId: aws.String(rs.hostedZoneID),
 	}
@@ -156,11 +178,13 @@ func (rs *recordSet) upsert() (*route53.ChangeResourceRecordSetsOutput, error) {
 }
 
 func (rs *recordSet) validate() error {
-	if rs.name == "" {
-		return fmt.Errorf("missing record set name")
-	}
-	if !strings.HasSuffix(rs.name, ".") {
-		return fmt.Errorf(`record set name must end with a "."`)
+	for i, name := range rs.names {
+		if name == "" {
+			return fmt.Errorf("missing record set name at index %d", i)
+		}
+		if !strings.HasSuffix(name, ".") {
+			return fmt.Errorf(`record set name at index %d must end with a "."`, i)
+		}
 	}
 	if rs.rsType == "" {
 		return fmt.Errorf("missing record set type")
