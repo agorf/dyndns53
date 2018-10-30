@@ -107,8 +107,8 @@ Running the program with no arguments prints a usage text:
     Usage of dyndns53:
       -log string
             file name to log to (default is stdout)
-      -name string
-            record set name (domain)
+      -name value
+            record set names (-name domain1 -name domain2 -name domain3 ...)
       -ttl int
             TTL (time to live) in seconds (default 300)
       -type string
@@ -119,11 +119,11 @@ Running the program with no arguments prints a usage text:
 You can set [Cron][] (with `crontab -e`) to run the program e.g. every five
 minutes:
 
-    */5 * * * * ~/go/bin/dyndns53 -name mydomain -zone HOSTEDZONEID -log ~/dyndns53.log
+    */5 * * * * ~/go/bin/dyndns53 -name mydomain1 -name mydomain2 -zone HOSTEDZONEID -log ~/dyndns53.log
 
-Where `~/go` is your `$GOPATH`, `mydomain` is the name of the record set
-(domain) you want to update and `HOSTEDZONEID` is the id of the [hosted zone][]
-it belongs to.
+Where `~/go` is your `$GOPATH`, `mydomain1` and `mydomain2` are the names of the
+record sets (domains) you want to update and `HOSTEDZONEID` is the id of the
+[hosted zone][] it belongs to.
 
 If the record set does not exist, it will be created the first time dyndns53
 runs.
