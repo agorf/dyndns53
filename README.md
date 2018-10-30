@@ -123,7 +123,7 @@ minutes:
 
 Where `~/go` is your `$GOPATH`, `mydomain1` and `mydomain2` are the names of the
 record sets (domains) you want to update and `HOSTEDZONEID` is the id of the
-[hosted zone][] it belongs to.
+[hosted zone][] they belong to.
 
 If the record set does not exist, it will be created the first time dyndns53
 runs.
