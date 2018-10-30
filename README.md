@@ -145,4 +145,4 @@ Licensed under the MIT license (see [LICENSE.txt][]).
 
 ## Author
 
-Angelos Orfanakos, http://agorf.gr/
+Angelos Orfanakos, https://agorf.gr/
