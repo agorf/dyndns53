@@ -182,9 +182,6 @@ func (rs *recordSet) validate() error {
 		if name == "" {
 			return fmt.Errorf("missing record set name at index %d", i)
 		}
-		if !strings.HasSuffix(name, ".") {
-			return fmt.Errorf(`record set name at index %d must end with a "."`, i)
-		}
 	}
 	if rs.rsType == "" {
 		return fmt.Errorf("missing record set type")
